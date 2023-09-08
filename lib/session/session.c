@@ -8,3 +8,10 @@ Session* session_new(Config config) {
 }
 
 void session_drop(Session* sess) { config_drop(&sess->config); }
+
+void session_run_compiler(Session* sess) {
+  SourceFile file =
+      source_map_load_file(&sess->source_map, &sess->config.input);
+  sess->pcx = parser_from_file(&file);
+  parse(sess->pcx);
+}

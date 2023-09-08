@@ -1,15 +1,21 @@
 #ifndef SESSION_H
 #define SESSION_H
 
-#include "session/config.h"
+#include <parser/parser.h>
+#include <session/config.h>
 
 /// Represents the data associated with a compilation session
 typedef struct {
   /// Command line options
   Config config;
+  /// All source files used in this session
+  SourceMap source_map;
+  /// Parsing context
+  ParseCtx* pcx;
 } Session;
 
-Session* session_new(Config config);
+NODISCARD Session* session_new(Config config);
 void session_drop(Session* sess);
+void session_run_compiler(Session* sess);
 
 #endif // !SESSION_H
