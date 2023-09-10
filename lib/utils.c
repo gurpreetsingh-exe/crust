@@ -20,3 +20,40 @@ void print_backtrace() {
     printf("    #%-2ld %s\n", i, strings[i]);
   }
 }
+
+bool is_whitespace(char c) {
+  switch (c) {
+      // Usual ASCII suspects
+    case '\t':
+      [[fallthrough]];
+    case '\n':
+      [[fallthrough]];
+    case '\x0b': // vertical tab
+      [[fallthrough]];
+    case '\x0c': // form feed
+      [[fallthrough]];
+    case '\r':
+      [[fallthrough]];
+    case ' ':
+      [[fallthrough]];
+
+      // NEXT LINE from latin1
+    case '\x85':
+      /**
+      [[fallthrough]];
+
+        // Bidi markers
+      case L'\u200E':
+        [[fallthrough]]; // LEFT-TO-RIGHT MARK
+      case L'\u200F':
+        [[fallthrough]]; // RIGHT-TO-LEFT MARK
+
+        // Dedicated whitespace characters from Unicode
+      case L'\u2028':
+        [[fallthrough]]; // LINE SEPARATOR
+      case L'\u2029':    // PARAGRAPH SEPARATOR
+     **/
+      return true;
+  }
+  return false;
+}

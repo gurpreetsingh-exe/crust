@@ -29,8 +29,10 @@ void config_from_args(i32 argc, char** argv, Config* r_config) {
           }
           break;
         }
-        case 'h': usage(arg0);
-        default: eprint("Unknown option `%s`\n", arg);
+        case 'h':
+          usage(arg0);
+        default:
+          eprint("Unknown option `%s`\n", arg);
       }
     } else {
       str s = str_new(arg);

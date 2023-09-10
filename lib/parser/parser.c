@@ -11,8 +11,9 @@ ParseCtx* parser_from_file(const SourceFile* file) {
 void parse(ParseCtx* pcx) {
   while (true) {
     Token t = lexer_next_token(&pcx->lexer);
+    token_display(stdout, t);
+    printf("\n");
     if (t.kind == Eof)
       break;
-    token_display(stdout, t);
   }
 }

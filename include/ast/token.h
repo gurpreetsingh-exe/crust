@@ -106,13 +106,34 @@ typedef enum TokenKind {
   Eof,
 } TokenKind;
 
+/// Base of numeric literal encoding according to its prefix.
+typedef enum Base : u32 {
+  /// Literal starts with "0b".
+  Binary = 2,
+  /// Literal starts with "0o".
+  Octal = 8,
+  /// Literal doesn't contain a prefix.
+  Decimal = 10,
+  /// Literal starts with "0x".
+  Hexadecimal = 16,
+} Base;
+
+typedef struct {
+  Symbol sym;
+  Symbol suffix;
+} Literal;
+
 const char* token_kind_to_cstr(TokenKind kind);
 
 typedef struct {
   TokenKind kind;
   Span span;
-  /// Optional field for `Ident`, `Lifetime` and `DocComment` tags
-  Symbol sym;
+  union {
+    /// Optional field for `Ident`, `Lifetime` and `DocComment`
+    Symbol sym;
+    /// Optional field for `Lit*`
+    Literal lit;
+  } extra;
 } Token;
 
 void token_display(FILE* f, Token t);
