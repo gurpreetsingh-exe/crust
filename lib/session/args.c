@@ -1,6 +1,6 @@
 #include <session/args.h>
 
-NORETURN void usage(const char* arg0) {
+[[noreturn]] void usage(const char* arg0) {
   printf("Usage: %s [options] input...\n"
          "\nOptions:\n"
          "    -h, --help           Display help information\n"

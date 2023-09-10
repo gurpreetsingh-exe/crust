@@ -20,9 +20,8 @@ typedef size_t usize;
 typedef float f32;
 typedef double f64;
 
-#define NORETURN __attribute__((noreturn))
-#define NODISCARD __attribute__((warn_unused_result))
-#define FORMAT(...) __attribute__((format(__VA_ARGS__)))
+#define CAT(a, b) #a #b
+#define STR(a) #a
 
 #define eprint(...)                                                            \
   (fprintf(stderr, "\033[1;31merror\033[0m: " __VA_ARGS__), exit(1))
@@ -40,8 +39,9 @@ typedef double f64;
     len1 == len2 && !strncmp(str1, str2, len1);                                \
   })
 
-NORETURN
-FORMAT(printf, 3, 4)
+#define UNREACHABLE() __builtin_unreachable()
+
+[[noreturn]] [[gnu::format(printf, 3, 4)]]
 void __crust_panic(const char* file, int line, const char*, ...);
 
 void print_backtrace();

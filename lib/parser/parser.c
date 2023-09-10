@@ -8,4 +8,11 @@ ParseCtx* parser_from_file(const SourceFile* file) {
   return pcx;
 }
 
-void parse(ParseCtx* pcx) { printf("%s\n", pcx->file->src); }
+void parse(ParseCtx* pcx) {
+  while (true) {
+    Token t = lexer_next_token(&pcx->lexer);
+    if (t.kind == Eof)
+      break;
+    token_display(stdout, t);
+  }
+}

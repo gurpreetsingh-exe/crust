@@ -10,10 +10,12 @@ typedef struct {
   usize size;
 } SourceFile;
 
+void file_drop(const SourceFile* file);
+
 typedef struct SourceMap {
-  vector(SourceFile) files;
+  vector(SourceFile*) files;
 } SourceMap;
 
-NODISCARD SourceFile source_map_load_file(SourceMap* sm, const str* path);
+[[nodiscard]] SourceFile* source_map_load_file(SourceMap* sm, const str* path);
 
 #endif // !SOURCE_MAP_H

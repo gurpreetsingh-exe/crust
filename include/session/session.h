@@ -14,7 +14,7 @@ typedef struct {
   ParseCtx* pcx;
 } Session;
 
-NODISCARD Session* session_new(Config config);
+[[nodiscard]] Session* session_new(Config config);
 void session_drop(Session* sess);
 void session_run_compiler(Session* sess);
 

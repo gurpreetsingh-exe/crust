@@ -2,7 +2,12 @@
 #include <errno.h>
 #include <span/source_map.h>
 
-SourceFile source_map_load_file(SourceMap* sm, const str* path) {
+void file_drop(const SourceFile* file) {
+  drop(file->src);
+  drop(file);
+}
+
+SourceFile* source_map_load_file(SourceMap* sm, const str* path) {
   (void)sm;
   FILE* f = fopen(path->buf, "r");
 
@@ -37,9 +42,9 @@ SourceFile source_map_load_file(SourceMap* sm, const str* path) {
 
   fclose(f);
 
-  return (SourceFile) {
-    .path = path,
-    .src = content,
-    .size = size,
-  };
+  SourceFile* file = alloc(SourceFile);
+  file->path = path;
+  file->src = content;
+  file->size = size;
+  return file;
 }

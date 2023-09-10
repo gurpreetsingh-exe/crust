@@ -6,6 +6,6 @@
 #define alloc_zeroed(T, n) ((T*)calloc((n), sizeof(T)))
 
 #define drop(v)                                                                \
-  do { free(v); } while (0)
+  do { free((void*)v); } while (0)
 
 #endif // !ALLOC_H
