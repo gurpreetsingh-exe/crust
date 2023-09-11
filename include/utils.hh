@@ -1,24 +1,36 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdarg>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
+#include <iostream>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-typedef size_t usize;
-typedef float f32;
-typedef double f64;
+template <typename T>
+using Option = std::optional<T>;
+
+namespace fs = std::filesystem;
+
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+using usize = size_t;
+using f32 = float;
+using f64 = double;
 
 #define CAT(a, b) #a #b
 #define STR(a) #a
@@ -37,7 +49,7 @@ typedef double f64;
 #define TODO(...) PANIC(__VA_ARGS__)
 
 #define ASSERT(cond, ...)                                                      \
-  (((cond) ? (void)0                                                           \
+  (((cond) ? static_cast<void>(0)                                              \
            : PANIC("assertion failed \"" #cond "\"\n    " __VA_ARGS__)))
 
 #define STREQ(str1, str2)                                                      \

@@ -1,4 +1,4 @@
-#include <session/args.h>
+#include <session/args.hh>
 
 [[noreturn]] void usage(const char* arg0) {
   printf("Usage: %s [options] input...\n"
@@ -9,7 +9,7 @@
   exit(1);
 }
 
-void config_from_args(i32 argc, char** argv, Config* r_config) {
+auto config_from_args(i32 argc, char** argv) -> Config {
   char* arg0 = argv[0];
   if (argc < 2) {
     usage(arg0);
@@ -17,36 +17,39 @@ void config_from_args(i32 argc, char** argv, Config* r_config) {
   ++argv;
   --argc;
 
-  for (usize i = 0; i < (usize)argc; ++i) {
-    char* arg = argv[i];
+  auto config = Config {};
+
+  for (usize i = 0; i < static_cast<usize>(argc); ++i) {
+    std::string_view arg = argv[i];
     if (arg[0] == '-') {
       switch (arg[1]) {
         case '-': {
-          if (STREQ(arg, "--help")) {
+          if (arg == "--help") {
             usage(arg0);
           } else {
-            eprint("Unknown option `%s`\n", arg);
+            eprint("Unknown option `%s`\n", arg.data());
           }
           break;
         }
         case 'h':
           usage(arg0);
         default:
-          eprint("Unknown option `%s`\n", arg);
+          eprint("Unknown option `%s`\n", arg.data());
       }
     } else {
-      str s = str_new(arg);
-      if (str_is_empty(s))
+      if (arg.empty())
         continue;
-      if (str_is_empty(r_config->input)) {
-        r_config->input = s;
+      if (config.input.empty()) {
+        config.input = arg;
       } else {
         eprint("multiple input files provided\n");
       }
     }
   }
 
-  if (str_is_empty(r_config->input)) {
+  if (config.input.empty()) {
     eprint("no input file provided\n");
   }
+
+  return config;
 }

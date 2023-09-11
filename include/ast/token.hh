@@ -1,8 +1,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include <span/span.h>
-#include <span/symbol.h>
+#include <span/span.hh>
+#include <span/symbol.hh>
+#include <variant>
 
 #define BINARY_OPS()                                                           \
   X(Plus)                                                                      \
@@ -36,7 +37,7 @@
   X(CStrRaw)                                                                   \
   X(Err)
 
-typedef enum TokenKind {
+enum TokenKind {
   /// Expression-operator symbols.
   Eq,
   Lt,
@@ -104,10 +105,10 @@ typedef enum TokenKind {
   /// A doc comment token `///`, `/**`.
   DocCommentOuter,
   Eof,
-} TokenKind;
+};
 
 /// Base of numeric literal encoding according to its prefix.
-typedef enum Base : u32 {
+enum Base : u32 {
   /// Literal starts with "0b".
   Binary = 2,
   /// Literal starts with "0o".
@@ -116,25 +117,32 @@ typedef enum Base : u32 {
   Decimal = 10,
   /// Literal starts with "0x".
   Hexadecimal = 16,
-} Base;
+};
 
-typedef struct {
+struct Literal {
   Symbol sym;
   Symbol suffix;
-} Literal;
+};
 
-const char* token_kind_to_cstr(TokenKind kind);
+auto token_kind_to_cstr(TokenKind kind) -> std::string_view;
 
-typedef struct {
+using TokenExtra = std::variant<Symbol, // Optional field for `Ident`,
+                                        // `Lifetime` and `DocComment`
+
+                                Literal // Optional field for `Lit*`
+                                >;
+
+struct Token {
   TokenKind kind;
   Span span;
-  union {
-    /// Optional field for `Ident`, `Lifetime` and `DocComment`
-    Symbol sym;
-    /// Optional field for `Lit*`
-    Literal lit;
-  } extra;
-} Token;
+  TokenExtra extra;
+
+  Token() {}
+  Token(TokenKind _kind, Span _span, TokenExtra _extra)
+      : kind(_kind), span(_span), extra(_extra) {}
+
+  friend auto operator<<(std::ostream& s, const Token& t) -> std::ostream&;
+};
 
 void token_display(FILE* f, Token t);
 

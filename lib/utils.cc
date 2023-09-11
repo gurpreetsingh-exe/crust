@@ -1,5 +1,5 @@
 #include <execinfo.h>
-#include <utils.h>
+#include <utils.hh>
 
 void __crust_panic(const char* file, int line, const char* format, ...) {
   fprintf(stderr, "panic at %s:%d", file, line);

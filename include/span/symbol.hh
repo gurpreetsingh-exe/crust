@@ -1,9 +1,9 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include <alloc/hash_map.h>
-#include <alloc/str.h>
-#include <alloc/vector.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 /// Special reserved identifiers used internally for elided lifetimes,
 /// unnamed method parameters, crate root module, error recovery etc.
@@ -75,22 +75,22 @@
   X(Union, "union")                                                            \
   X(Yeet, "yeet")
 
-typedef struct Symbol {
+struct Symbol {
   u32 inner;
-} Symbol;
 
-typedef struct Interner {
-  vector(str) strings;
-  hash_map(str, Symbol) names;
-} Interner;
+  Symbol() {};
+  Symbol(u32 index) : inner(index) {}
+  static auto intern(std::string_view string) -> Symbol;
+  auto get() -> std::string_view;
+};
 
-[[nodiscard]] Symbol symbol_intern(string_view symbol);
-str symbol_get(Symbol symbol);
+struct Interner {
+  std::vector<std::string_view> strings;
+  std::unordered_map<std::string_view, Symbol> names;
 
-void interner_new();
-void interner_fresh();
-[[nodiscard]] Symbol interner_intern(str string);
-void interner_drop();
+  auto fresh() -> void;
+  auto intern(std::string_view string) -> Symbol;
+};
 
 /// Symbol interner
 extern Interner interner;
@@ -98,13 +98,5 @@ extern Interner interner;
 #define X(kw, unused) extern Symbol kw;
 KEYWORDS()
 #undef X
-
-#define hash(map, key)                                                         \
-  ({                                                                           \
-    (map).hasher->hash = 0;                                                    \
-    fx_write_str((map).hasher, key);                                           \
-    usize hash = fx_finish((map).hasher) % 1000;                               \
-    hash;                                                                      \
-  })
 
 #endif // !SYMBOL_H

@@ -1,6 +1,6 @@
-#include <ast/token.h>
+#include <ast/token.hh>
 
-const char* token_kind_to_cstr(TokenKind kind) {
+auto token_kind_to_cstr(TokenKind kind) -> std::string_view {
   switch (kind) {
     case Eq:
       return "=";
@@ -100,9 +100,10 @@ const char* token_kind_to_cstr(TokenKind kind) {
   UNREACHABLE();
 }
 
-void token_display(FILE* f, Token t) {
-  fprintf(f, "Token { kind: %s, span: { lo: %d, hi: %d }",
-          token_kind_to_cstr(t.kind), t.span.lo, t.span.hi);
+auto operator<<(std::ostream& s, const Token& t) -> std::ostream& {
+  s << "Token { kind: " << token_kind_to_cstr(t.kind)
+    << ", span: { lo: " << t.span.lo << ", hi: " << t.span.hi << " }";
+
   PUSH_IGNORE_WARNING("-Wswitch-enum")
   switch (t.kind) {
     default:
@@ -111,14 +112,17 @@ void token_display(FILE* f, Token t) {
     case DocCommentOuter:
     case DocCommentInner:
     case Lifetime: {
-      fprintf(f, ", sym: \"%s\"", symbol_get(t.extra.sym).buf);
+      auto sym = std::get<Symbol>(t.extra);
+      s << ", sym: \"" << sym.get() << "\"";
     } break;
 #define X(lit) case Lit##lit:
       LITERALS()
 #undef X
-      fprintf(f, ", lit: %s", symbol_get(t.extra.lit.sym).buf);
+      auto lit = std::get<Literal>(t.extra);
+      s << ", lit: \"" << lit.sym.get() << "\"";
       break;
   }
   POP_IGNORE_WARNING()
-  fprintf(stdout, " }");
+
+  return s << " }";
 }
