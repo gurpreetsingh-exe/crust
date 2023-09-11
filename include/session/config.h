@@ -5,9 +5,9 @@
 
 /// Command line options
 typedef struct {
-  /// input filename
+  /// Input filename
   str input;
-  /// output filename
+  /// Output filename
   str output;
 } Config;
 

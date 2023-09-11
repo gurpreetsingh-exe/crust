@@ -24,6 +24,7 @@ TokenKind lexer_line_comment(Lexer* lexer);
 TokenKind lexer_block_comment(Lexer* lexer);
 TokenKind lexer_lifetime_or_char(Lexer* lexer, Symbol* sym, usize start);
 bool lexer_single_quoted_string(Lexer* lexer);
+bool lexer_double_quoted_string(Lexer* lexer);
 bool lexer_eat_decimal_digits(Lexer* lexer);
 void lexer_eat_literal_suffix(Lexer* lexer);
 void lexer_eat_identifier(Lexer* lexer);

@@ -116,9 +116,7 @@ void token_display(FILE* f, Token t) {
 #define X(lit) case Lit##lit:
       LITERALS()
 #undef X
-      {
-        fprintf(f, ", lit: %s", symbol_get(t.extra.lit.sym).buf);
-      }
+      fprintf(f, ", lit: %s", symbol_get(t.extra.lit.sym).buf);
       break;
   }
   POP_IGNORE_WARNING()

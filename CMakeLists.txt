@@ -1,10 +1,20 @@
 cmake_minimum_required(VERSION 3.26)
 project(crust VERSION 0.1)
 
+find_program(CCACHE_PROGRAM ccache)
+if (CCACHE_PROGRAM)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 11)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
+
 file(GLOB_RECURSE sources "${CMAKE_SOURCE_DIR}/lib/*.c")
+
+set(ENABLE_TESTS OFF CACHE BOOL "Enable tests")
 
 add_executable(crust ${sources})
 target_compile_options(crust PRIVATE
@@ -52,3 +62,19 @@ target_precompile_headers(crust PRIVATE "${CMAKE_SOURCE_DIR}/include/utils.h")
 
 target_link_options(crust PRIVATE -fsanitize=address)
 target_include_directories(crust PUBLIC "${CMAKE_SOURCE_DIR}/include")
+
+if(ENABLE_TESTS)
+    message("-- tests enabled")
+    file(GLOB_RECURSE test_sources "${CMAKE_SOURCE_DIR}/lib/*.cc")
+    list(FILTER test_sources INCLUDE REGEX "/tests/")
+
+    add_subdirectory(third_party/googletest)
+    enable_testing()
+    include(GoogleTest)
+
+    add_executable(run_tests "${CMAKE_SOURCE_DIR}/lib/driver/test_driver.cc")
+    target_include_directories(run_tests PUBLIC "${CMAKE_SOURCE_DIR}/include")
+    target_link_libraries(run_tests GTest::gtest)
+
+    gtest_discover_tests(run_tests)
+endif()

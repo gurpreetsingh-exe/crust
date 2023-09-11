@@ -201,6 +201,20 @@ Token lexer_next_token(Lexer* lexer) {
           };
         }
       } break;
+      case '"': {
+        lexer_bump(lexer);
+        bool terminated = lexer_double_quoted_string(lexer);
+        // usize suffix_start = lexer->index;
+        if (terminated) {
+          sym = lexer_symbol(lexer, start);
+          lexer_eat_literal_suffix(lexer);
+        }
+        return (Token) {
+          .kind = LitStr,
+          .span = span_new((u32)start, (u32)lexer->index),
+          .extra = { .sym = sym },
+        };
+      } break;
       case '\0': {
         kind = Eof;
       } break;
@@ -372,6 +386,7 @@ TokenKind lexer_lifetime_or_char(Lexer* lexer, Symbol* sym, usize start) {
 }
 
 bool lexer_single_quoted_string(Lexer* lexer) {
+  ASSERT(lexer->prev == '\'');
   if (lexer_first(lexer) == '\'' && lexer->c != '\\') {
     lexer_bump(lexer);
     lexer_bump(lexer);
@@ -404,6 +419,20 @@ bool lexer_single_quoted_string(Lexer* lexer) {
     }
   }
 end:
+  return false;
+}
+
+bool lexer_double_quoted_string(Lexer* lexer) {
+  ASSERT(lexer->prev == '"');
+  while (true) {
+    char c = lexer->c;
+    lexer_bump(lexer);
+    if (c == '"') {
+      return true;
+    } else if (c == '\\' && (lexer->c == '\\' || lexer->c == '"')) {
+      lexer_bump(lexer);
+    }
+  }
   return false;
 }
 
