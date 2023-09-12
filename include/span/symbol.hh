@@ -1,10 +1,6 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 /// Special reserved identifiers used internally for elided lifetimes,
 /// unnamed method parameters, crate root module, error recovery etc.
 /// https://github.com/rust-lang/rust/blob/5ede9408945b46ab183dd228253297bdf62304f7/compiler/rustc_span/src/symbol.rs#L22

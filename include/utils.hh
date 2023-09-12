@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdarg>
 #include <cstdint>
@@ -8,15 +9,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
-
-template <typename T>
-using Option = std::optional<T>;
 
 namespace fs = std::filesystem;
 

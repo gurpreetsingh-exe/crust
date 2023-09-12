@@ -5,7 +5,8 @@ auto Parser::bump() -> void {}
 
 auto Parser::parse() -> void {
   for (auto& t : m_tokens) {
-      std::cout << t << std::endl;
+    auto loc = m_sess.source_map.span_to_string(t.span);
+    std::cout << t << std::format(": {}", loc) << std::endl;
   }
 }
 

@@ -3,7 +3,6 @@
 
 #include <span/span.hh>
 #include <span/symbol.hh>
-#include <variant>
 
 #define BINARY_OPS()                                                           \
   X(Plus)                                                                      \

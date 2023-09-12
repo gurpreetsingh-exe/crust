@@ -181,7 +181,7 @@ auto Lexer::next() -> Token {
           sym = symbol(start);
           eat_literal_suffix();
         }
-          auto lit = Literal { .sym = sym, .suffix = { 0 } };
+        auto lit = Literal { .sym = sym, .suffix = { 0 } };
         return Token(LitStr, Span((u32)start, (u32)m_index), lit);
       } break;
       case '\0': {
