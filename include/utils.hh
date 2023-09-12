@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fmt/core.h>
 #include <format>
 #include <iostream>
 #include <memory>

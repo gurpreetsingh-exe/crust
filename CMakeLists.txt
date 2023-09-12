@@ -63,6 +63,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         -Werror=return-stack-address)
 endif()
 
+add_subdirectory(third_party/fmt)
+target_link_libraries(crust fmt)
+
 target_precompile_headers(crust PRIVATE "${CMAKE_SOURCE_DIR}/include/utils.hh")
 
 target_link_options(crust PRIVATE -fsanitize=address)
