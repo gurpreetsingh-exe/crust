@@ -1,6 +1,8 @@
 #include <execinfo.h>
 #include <utils.hh>
 
+namespace crust {
+
 void __crust_panic(const char* file, int line, const char* format, ...) {
   fprintf(stderr, "panic at %s:%d", file, line);
   va_list args;
@@ -57,3 +59,5 @@ bool is_whitespace(char c) {
   }
   return false;
 }
+
+} // namespace crust

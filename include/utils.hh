@@ -11,7 +11,6 @@
 #include <filesystem>
 #include <fmt/core.h>
 #include <format>
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
@@ -20,6 +19,8 @@
 #include <vector>
 
 namespace fs = std::filesystem;
+
+namespace crust {
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -33,6 +34,15 @@ using usize = size_t;
 using f32 = float;
 using f64 = double;
 
+template <typename T>
+using Box = std::unique_ptr<T>;
+
+template <typename T>
+using Rc = std::shared_ptr<T>;
+
+template <typename T>
+using Option = std::optional<T>;
+
 #define CAT(a, b) #a #b
 #define STR(a) #a
 
@@ -45,20 +55,14 @@ using f64 = double;
 #define eprint(...)                                                            \
   (fprintf(stderr, "\033[1;31merror\033[0m: " __VA_ARGS__), exit(1))
 
-#define PANIC(...) (__crust_panic(__FILE__, __LINE__, "\n    " __VA_ARGS__))
+#define PANIC(...)                                                             \
+  (::crust::__crust_panic(__FILE__, __LINE__, "\n    " __VA_ARGS__))
 
 #define TODO(...) PANIC(__VA_ARGS__)
 
 #define ASSERT(cond, ...)                                                      \
   (((cond) ? static_cast<void>(0)                                              \
            : PANIC("assertion failed \"" #cond "\"\n    " __VA_ARGS__)))
-
-#define STREQ(str1, str2)                                                      \
-  ({                                                                           \
-    usize len1 = strlen(str1);                                                 \
-    usize len2 = strlen(str2);                                                 \
-    len1 == len2 && !strncmp(str1, str2, len1);                                \
-  })
 
 [[noreturn]] [[gnu::format(printf, 3, 4)]]
 void __crust_panic(const char* file, int line, const char*, ...);
@@ -69,5 +73,7 @@ void print_backtrace();
 /// definition. See https://doc.rust-lang.org/reference/whitespace.html for
 /// definitions of these classes.
 bool is_whitespace(char c);
+
+} // namespace crust
 
 #endif // !UTILS_H

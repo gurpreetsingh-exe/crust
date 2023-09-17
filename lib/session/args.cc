@@ -1,5 +1,7 @@
 #include <session/args.hh>
 
+namespace crust {
+
 [[noreturn]] void usage(const char* arg0) {
   printf("Usage: %s [options] input...\n"
          "\nOptions:\n"
@@ -53,3 +55,5 @@ auto config_from_args(i32 argc, char** argv) -> Config {
 
   return config;
 }
+
+} // namespace crust

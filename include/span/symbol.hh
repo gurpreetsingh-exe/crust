@@ -1,6 +1,8 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
+namespace crust {
+
 /// Special reserved identifiers used internally for elided lifetimes,
 /// unnamed method parameters, crate root module, error recovery etc.
 /// https://github.com/rust-lang/rust/blob/5ede9408945b46ab183dd228253297bdf62304f7/compiler/rustc_span/src/symbol.rs#L22
@@ -76,6 +78,8 @@ struct Symbol {
 
   Symbol() {};
   Symbol(u32 index) : inner(index) {}
+  auto operator==(Symbol other) -> bool { return inner == other.inner; }
+
   static auto intern(std::string_view string) -> Symbol;
   auto get() -> std::string_view;
 };
@@ -91,8 +95,25 @@ struct Interner {
 /// Symbol interner
 extern Interner interner;
 
+namespace kw {
 #define X(kw, unused) extern Symbol kw;
 KEYWORDS()
 #undef X
+} // namespace kw
+
+} // namespace crust
+
+template <>
+struct fmt::formatter<crust::Symbol> {
+  constexpr auto parse(format_parse_context& ctx)
+      -> format_parse_context::iterator {
+    return ctx.begin();
+  }
+
+  auto format(crust::Symbol sym, format_context& ctx)
+      -> format_context::iterator {
+    return fmt::format_to(ctx.out(), "{}", sym.get());
+  }
+};
 
 #endif // !SYMBOL_H

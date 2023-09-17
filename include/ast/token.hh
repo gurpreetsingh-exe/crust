@@ -4,6 +4,8 @@
 #include <span/span.hh>
 #include <span/symbol.hh>
 
+namespace crust {
+
 #define BINARY_OPS()                                                           \
   X(Plus)                                                                      \
   X(Minus)                                                                     \
@@ -123,8 +125,6 @@ struct Literal {
   Symbol suffix;
 };
 
-auto token_kind_to_cstr(TokenKind kind) -> std::string_view;
-
 using TokenExtra = std::variant<Symbol, // Optional field for `Ident`,
                                         // `Lifetime` and `DocComment`
 
@@ -139,10 +139,189 @@ struct Token {
   Token() {}
   Token(TokenKind _kind, Span _span, TokenExtra _extra)
       : kind(_kind), span(_span), extra(_extra) {}
-
-  friend auto operator<<(std::ostream& s, const Token& t) -> std::ostream&;
 };
 
-void token_display(FILE* f, Token t);
+} // namespace crust
+
+template <>
+struct fmt::formatter<crust::TokenKind> {
+  constexpr auto parse(format_parse_context& ctx)
+      -> format_parse_context::iterator {
+    return ctx.begin();
+  }
+
+  auto format(crust::TokenKind kind, format_context& ctx)
+      -> format_context::iterator {
+    auto s = std::string_view("unknwown");
+    switch (kind) {
+      case crust::TokenKind::Eq:
+        s = "=";
+        break;
+      case crust::TokenKind::Lt:
+        s = "<";
+        break;
+      case crust::TokenKind::Le:
+        s = "<=";
+        break;
+      case crust::TokenKind::EqEq:
+        s = "==";
+        break;
+      case crust::TokenKind::Ne:
+        s = "!=";
+        break;
+      case crust::TokenKind::Ge:
+        s = ">=";
+        break;
+      case crust::TokenKind::Gt:
+        s = ">";
+        break;
+      case crust::TokenKind::AndAnd:
+        s = "&&";
+        break;
+      case crust::TokenKind::OrOr:
+        s = "||";
+        break;
+      case crust::TokenKind::Not:
+        s = "!";
+        break;
+      case crust::TokenKind::Tilde:
+        s = "~";
+        break;
+      case crust::TokenKind::At:
+        s = "@";
+        break;
+      case crust::TokenKind::Dot:
+        s = ".";
+        break;
+      case crust::TokenKind::DotDot:
+        s = "..";
+        break;
+      case crust::TokenKind::DotDotDot:
+        s = "...";
+        break;
+      case crust::TokenKind::DotDotEq:
+        s = "..=";
+        break;
+      case crust::TokenKind::Comma:
+        s = ",";
+        break;
+      case crust::TokenKind::Semi:
+        s = ";";
+        break;
+      case crust::TokenKind::Colon:
+        s = ":";
+        break;
+      case crust::TokenKind::ModSep:
+        s = "::";
+        break;
+      case crust::TokenKind::RArrow:
+        s = "->";
+        break;
+      case crust::TokenKind::LArrow:
+        s = "<-";
+        break;
+      case crust::TokenKind::FatArrow:
+        s = "=>";
+        break;
+      case crust::TokenKind::Pound:
+        s = "#";
+        break;
+      case crust::TokenKind::Dollar:
+        s = "$";
+        break;
+      case crust::TokenKind::Question:
+        s = "?";
+        break;
+      case crust::TokenKind::SingleQuote:
+        s = "'";
+        break;
+      case crust::TokenKind::Ident:
+        s = "Ident";
+        break;
+      case crust::TokenKind::Lifetime:
+        s = "'a";
+        break;
+      case crust::TokenKind::DocCommentInner:
+        s = "//!";
+        break;
+      case crust::TokenKind::DocCommentOuter:
+        s = "///";
+        break;
+      case crust::TokenKind::Eof:
+        s = "<eof>";
+        break;
+#define X(bin_op)                                                              \
+  case crust::TokenKind::bin_op:                                               \
+    s = #bin_op;                                                               \
+    break;
+        BINARY_OPS()
+#undef X
+
+#define X(bin_op)                                                              \
+  case crust::TokenKind::bin_op##Eq:                                           \
+    s = CAT(bin_op, Eq);                                                       \
+    break;
+        BINARY_OPS()
+#undef X
+
+#define X(delim)                                                               \
+  case crust::TokenKind::Open##delim:                                          \
+    s = CAT(Open, delim);                                                      \
+    break;
+        DELIMITERS()
+#undef X
+
+#define X(delim)                                                               \
+  case crust::TokenKind::Close##delim:                                         \
+    s = CAT(Close, delim);                                                     \
+    break;
+        DELIMITERS()
+#undef X
+
+#define X(lit)                                                                 \
+  case crust::TokenKind::Lit##lit:                                             \
+    s = #lit;                                                                  \
+    break;
+        LITERALS()
+#undef X
+    }
+
+    return fmt::format_to(ctx.out(), "{}", s);
+  }
+};
+
+template <>
+struct fmt::formatter<crust::Token> {
+  constexpr auto parse(format_parse_context& ctx)
+      -> format_parse_context::iterator {
+    return ctx.begin();
+  }
+
+  auto format(const crust::Token& t, format_context& ctx)
+      -> format_context::iterator {
+    std::string s;
+    switch (t.kind) {
+      default:
+        break;
+      case crust::TokenKind::Ident:
+      case crust::TokenKind::DocCommentOuter:
+      case crust::TokenKind::DocCommentInner:
+      case crust::TokenKind::Lifetime: {
+        auto sym = std::get<crust::Symbol>(t.extra);
+        s = fmt::format(", sym: \"{}\"", sym);
+      } break;
+#define X(lit) case crust::TokenKind::Lit##lit:
+        LITERALS()
+#undef X
+        auto lit = std::get<crust::Literal>(t.extra);
+        s = fmt::format(", lit: \"{}\"", lit.sym.get());
+        break;
+    }
+
+    return fmt::format_to(ctx.out(),
+                          "Token {{ kind: {}, span: {{ lo: {}, hi: {} }}{} }}",
+                          t.kind, t.span.lo, t.span.hi, s);
+  }
+};
 
 #endif // !TOKEN_H

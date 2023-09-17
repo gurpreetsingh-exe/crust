@@ -2,12 +2,15 @@
 #define PARSER_H
 
 #include <ast/token.hh>
+#include <parser/lexer.hh>
 #include <session/parse.hh>
+
+namespace crust {
 
 class Parser {
 public:
-  Parser(ParseSess& sess, std::vector<Token> tokens)
-      : m_sess(sess), m_tokens(std::move(tokens)) {
+  Parser(ParseSess& sess, Rc<SourceFile> file) : m_sess(sess) {
+    m_lexer = std::make_unique<Lexer>(file->content);
     bump();
   }
 
@@ -19,11 +22,15 @@ private:
 
 private:
   ParseSess& m_sess;
+  Box<Lexer> m_lexer;
   std::vector<Token> m_tokens;
   Token m_token;
+  usize m_idx = SIZE_MAX;
 };
 
 [[nodiscard]]
 auto parser_from_file(ParseSess& sess, const fs::path& path) -> Parser;
+
+} // namespace crust
 
 #endif // !PARSER_H

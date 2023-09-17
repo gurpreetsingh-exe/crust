@@ -1,10 +1,14 @@
 #include <span/symbol.hh>
 
+namespace crust {
+
 Interner interner = {};
 
+namespace kw {
 #define X(kw, unused) Symbol kw(__COUNTER__);
 KEYWORDS()
 #undef X
+} // namespace kw
 
 auto Symbol::intern(std::string_view symbol) -> Symbol {
   return interner.intern(symbol);
@@ -36,3 +40,5 @@ auto Interner::intern(std::string_view string) -> Symbol {
   interner.names[string] = sym;
   return sym;
 }
+
+} // namespace crust

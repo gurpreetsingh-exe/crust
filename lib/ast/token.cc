@@ -1,6 +1,8 @@
 #include <ast/token.hh>
 
-auto token_kind_to_cstr(TokenKind kind) -> std::string_view {
+namespace crust {
+
+auto format_as(TokenKind kind) {
   switch (kind) {
     case Eq:
       return "=";
@@ -100,29 +102,4 @@ auto token_kind_to_cstr(TokenKind kind) -> std::string_view {
   UNREACHABLE();
 }
 
-auto operator<<(std::ostream& s, const Token& t) -> std::ostream& {
-  s << "Token { kind: " << token_kind_to_cstr(t.kind)
-    << ", span: { lo: " << t.span.lo << ", hi: " << t.span.hi << " }";
-
-  PUSH_IGNORE_WARNING("-Wswitch-enum")
-  switch (t.kind) {
-    default:
-      break;
-    case Ident:
-    case DocCommentOuter:
-    case DocCommentInner:
-    case Lifetime: {
-      auto sym = std::get<Symbol>(t.extra);
-      s << ", sym: \"" << sym.get() << "\"";
-    } break;
-#define X(lit) case Lit##lit:
-      LITERALS()
-#undef X
-      auto lit = std::get<Literal>(t.extra);
-      s << ", lit: \"" << lit.sym.get() << "\"";
-      break;
-  }
-  POP_IGNORE_WARNING()
-
-  return s << " }";
-}
+} // namespace crust

@@ -40,7 +40,6 @@ target_compile_options(crust PRIVATE
     -Werror=missing-include-dirs
     -Werror=string-compare
     -Werror=switch
-    -Werror=switch-enum
     -Werror=write-strings
 
     -Werror=missing-field-initializers

@@ -1,5 +1,7 @@
 #include <span/source_map.hh>
 
+namespace crust {
+
 SourceFile::SourceFile(const fs::path filepath, const std::string source)
     : path(filepath), content(std::move(source)), start_pos(0),
       source_len(static_cast<u32>(content.length())) {
@@ -19,7 +21,7 @@ SourceFile::SourceFile(const fs::path filepath, const std::string source)
   }
 }
 
-auto SourceFile::lookup_line(RelativeBytePos pos) -> std::optional<usize> {
+auto SourceFile::lookup_line(RelativeBytePos pos) -> Option<usize> {
   const auto pp = std::partition_point(lines.cbegin(), lines.cend(),
                                        [&](auto x) { return x <= pos; });
   auto d = static_cast<usize>(std::distance(lines.cbegin(), pp));
@@ -47,7 +49,7 @@ auto SourceFile::lookup_file_pos_with_col_display(BytePos pos)
   return lookup_file_pos(rel_pos);
 }
 
-auto SourceMap::new_file(fs::path path) -> std::shared_ptr<SourceFile> {
+auto SourceMap::new_file(fs::path path) -> Rc<SourceFile> {
   const auto& canonical_path = fs::canonical(path);
   if (path_to_source_file.contains(canonical_path)) {
     return path_to_source_file.at(canonical_path);
@@ -59,7 +61,7 @@ auto SourceMap::new_file(fs::path path) -> std::shared_ptr<SourceFile> {
 }
 
 auto SourceMap::register_file(fs::path path, SourceFile file)
-    -> std::shared_ptr<SourceFile> {
+    -> Rc<SourceFile> {
   file.start_pos =
       source_files.empty()
           ? 0
@@ -116,7 +118,7 @@ auto SourceMap::lookup_source_file_idx(BytePos pos) -> usize {
   return static_cast<usize>(d);
 }
 
-auto SourceMap::lookup_source_file(BytePos pos) -> std::shared_ptr<SourceFile> {
+auto SourceMap::lookup_source_file(BytePos pos) -> Rc<SourceFile> {
   usize idx = lookup_source_file_idx(pos);
   return source_files[idx];
 }
@@ -128,8 +130,7 @@ auto SourceMap::lookup_char_pos(BytePos pos) -> Loc {
 }
 
 auto SourceMap::span_to_location_info(Span span)
-    -> std::tuple<std::optional<std::shared_ptr<SourceFile>>, usize, usize,
-                  usize, usize> {
+    -> std::tuple<Option<Rc<SourceFile>>, usize, usize, usize, usize> {
   if (source_files.empty())
     return { {}, 0, 0, 0, 0 };
 
@@ -149,3 +150,5 @@ auto SourceMap::span_to_string(Span span) -> std::string {
   return std::format("{}:{}:{}: {}:{}", filename, lo_line, lo_col, hi_line,
                      hi_col);
 }
+
+} // namespace crust

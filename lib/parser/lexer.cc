@@ -1,16 +1,12 @@
 #include <ctype.h>
 #include <parser/lexer.hh>
 
+namespace crust {
+
 auto Lexer::bump() -> void {
   m_prev = m_c;
   if (m_index < m_src.size() - 1) {
     m_c = m_src[++m_index];
-    if (m_c == '\n') {
-      ++m_line;
-      m_col = 0;
-    } else {
-      ++m_col;
-    }
   } else {
     ++m_index;
     m_c = 0;
@@ -34,7 +30,7 @@ auto Lexer::next() -> Token {
   m_preceded_by_whitespace = false;
   while (true) {
     usize start = m_index;
-    std::optional<TokenKind> kind = {};
+    Option<TokenKind> kind = {};
     Symbol sym = { 0 };
 
     switch (m_c) {
@@ -248,9 +244,9 @@ auto Lexer::number(Base* base) -> TokenKind {
   UNREACHABLE();
 }
 
-auto Lexer::line_comment() -> std::optional<TokenKind> {
+auto Lexer::line_comment() -> Option<TokenKind> {
   bump();
-  std::optional<TokenKind> kind = {};
+  Option<TokenKind> kind = {};
 
   if (m_c == '!') {
     // `//!` inner doc comment
@@ -264,9 +260,9 @@ auto Lexer::line_comment() -> std::optional<TokenKind> {
   return kind;
 }
 
-auto Lexer::block_comment() -> std::optional<TokenKind> {
+auto Lexer::block_comment() -> Option<TokenKind> {
   bump();
-  std::optional<TokenKind> kind = {};
+  Option<TokenKind> kind = {};
 
   if (m_c == '!') {
     // `/*!` inner block doc comment
@@ -416,3 +412,5 @@ auto Lexer::eat_identifier() -> void {
   bump();
   while (isalnum(m_c) || m_c == '_') bump();
 }
+
+} // namespace crust

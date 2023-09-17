@@ -4,6 +4,8 @@
 #include <span/loc.hh>
 #include <span/span.hh>
 
+namespace crust {
+
 using RelativeBytePos = u32;
 using BytePos = u32;
 using CharPos = usize;
@@ -43,7 +45,7 @@ struct SourceFile {
   }
 
   [[nodiscard]]
-  auto lookup_line(RelativeBytePos pos) -> std::optional<usize>;
+  auto lookup_line(RelativeBytePos pos) -> Option<usize>;
 
   [[nodiscard]]
   auto lookup_file_pos(RelativeBytePos pos) -> std::tuple<usize, CharPos>;
@@ -62,33 +64,33 @@ public:
 public:
   /// checks if the given `path` already exists in the map and returns that file
   /// otherwise opens and reads the file and adds it to the map
-  [[nodiscard]] auto new_file(fs::path path) -> std::shared_ptr<SourceFile>;
+  [[nodiscard]] auto new_file(fs::path path) -> Rc<SourceFile>;
 
   /// loads the file
   [[nodiscard]]
   auto load_file(const fs::path& path) -> std::string;
 
   [[nodiscard]]
-  auto register_file(fs::path path, SourceFile file)
-      -> std::shared_ptr<SourceFile>;
+  auto register_file(fs::path path, SourceFile file) -> Rc<SourceFile>;
 
   auto lookup_source_file_idx(BytePos pos) -> usize;
 
   [[nodiscard]]
-  auto lookup_source_file(BytePos pos) -> std::shared_ptr<SourceFile>;
+  auto lookup_source_file(BytePos pos) -> Rc<SourceFile>;
 
   auto lookup_char_pos(BytePos pos) -> Loc;
 
   auto span_to_location_info(Span span)
-      -> std::tuple<std::optional<std::shared_ptr<SourceFile>>, usize, usize,
-                    usize, usize>;
+      -> std::tuple<Option<Rc<SourceFile>>, usize, usize, usize, usize>;
 
   [[nodiscard]]
   auto span_to_string(Span span) -> std::string;
 
 private:
-  std::unordered_map<fs::path, std::shared_ptr<SourceFile>> path_to_source_file;
-  std::vector<std::shared_ptr<SourceFile>> source_files;
+  std::unordered_map<fs::path, Rc<SourceFile>> path_to_source_file;
+  std::vector<Rc<SourceFile>> source_files;
 };
+
+} // namespace crust
 
 #endif // !SOURCE_MAP_H

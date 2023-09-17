@@ -2,8 +2,8 @@
 #include <session/session.hh>
 
 int main(int argc, char** argv) {
-  auto config = config_from_args(argc, argv);
-  auto sess = Session(config);
+  auto config = crust::config_from_args(argc, argv);
+  auto sess = crust::Session(config);
   sess.run_compiler();
   return 0;
 }

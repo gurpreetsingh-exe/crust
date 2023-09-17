@@ -4,6 +4,8 @@
 #include <ast/token.hh>
 #include <span/source_map.hh>
 
+namespace crust {
+
 class Lexer {
 public:
   Lexer(const std::string& src) : m_src(src) {
@@ -20,8 +22,8 @@ private:
   auto first() -> char;
   auto symbol(usize start) -> Symbol;
   auto number(Base* base) -> TokenKind;
-  auto line_comment() -> std::optional<TokenKind>;
-  auto block_comment() -> std::optional<TokenKind>;
+  auto line_comment() -> Option<TokenKind>;
+  auto block_comment() -> Option<TokenKind>;
   auto lifetime_or_char(Symbol* sym, usize start) -> TokenKind;
   auto single_quoted_string() -> bool;
   auto double_quoted_string() -> bool;
@@ -34,9 +36,9 @@ private:
   char m_c = 0;
   char m_prev = 0;
   usize m_index = 0;
-  u32 m_line = 1;
-  u32 m_col = 1;
   bool m_preceded_by_whitespace = false;
 };
+
+} // namespace crust
 
 #endif // !LEXER_H
