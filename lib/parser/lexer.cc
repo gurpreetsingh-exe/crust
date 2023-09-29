@@ -35,99 +35,99 @@ auto Lexer::next() -> Token {
 
     switch (m_c) {
       case ';': {
-        kind = Semi;
+        kind = TokenKind::Semi;
         bump();
       } break;
       case ',': {
-        kind = Comma;
+        kind = TokenKind::Comma;
         bump();
       } break;
       case '.': {
-        kind = Dot;
+        kind = TokenKind::Dot;
         bump();
       } break;
       case '(': {
-        kind = OpenParenthesis;
+        kind = TokenKind::OpenParenthesis;
         bump();
       } break;
       case ')': {
-        kind = CloseParenthesis;
+        kind = TokenKind::CloseParenthesis;
         bump();
       } break;
       case '{': {
-        kind = OpenBrace;
+        kind = TokenKind::OpenBrace;
         bump();
       } break;
       case '}': {
-        kind = CloseBrace;
+        kind = TokenKind::CloseBrace;
         bump();
       } break;
       case '[': {
-        kind = OpenBracket;
+        kind = TokenKind::OpenBracket;
         bump();
       } break;
       case ']': {
-        kind = CloseBracket;
+        kind = TokenKind::CloseBracket;
         bump();
       } break;
       case '@': {
-        kind = At;
+        kind = TokenKind::At;
         bump();
       } break;
       case '#': {
-        kind = Pound;
+        kind = TokenKind::Pound;
         bump();
       } break;
       case '~': {
-        kind = Tilde;
+        kind = TokenKind::Tilde;
         bump();
       } break;
       case '?': {
-        kind = Question;
+        kind = TokenKind::Question;
         bump();
       } break;
       case ':': {
-        kind = Colon;
+        kind = TokenKind::Colon;
         bump();
       } break;
       case '$': {
-        kind = Dollar;
+        kind = TokenKind::Dollar;
         bump();
       } break;
       case '=': {
-        kind = Eq;
+        kind = TokenKind::Eq;
         bump();
       } break;
       case '!': {
-        kind = Not;
+        kind = TokenKind::Not;
         bump();
       } break;
       case '<': {
-        kind = Lt;
+        kind = TokenKind::Lt;
         bump();
       } break;
       case '>': {
-        kind = Gt;
+        kind = TokenKind::Gt;
         bump();
       } break;
       case '-': {
-        kind = Minus;
+        kind = TokenKind::Minus;
         bump();
       } break;
       case '&': {
-        kind = And;
+        kind = TokenKind::And;
         bump();
       } break;
       case '|': {
-        kind = Or;
+        kind = TokenKind::Or;
         bump();
       } break;
       case '+': {
-        kind = Plus;
+        kind = TokenKind::Plus;
         bump();
       } break;
       case '*': {
-        kind = Star;
+        kind = TokenKind::Star;
         bump();
       } break;
       case '/': {
@@ -149,23 +149,23 @@ auto Lexer::next() -> Token {
           sym = symbol(start);
           return Token(kind.value(), Span((u32)start, (u32)m_index), sym);
         }
-        kind = Slash;
+        kind = TokenKind::Slash;
       } break;
       case '^': {
-        kind = Caret;
+        kind = TokenKind::Caret;
         bump();
       } break;
       case '%': {
-        kind = Percent;
+        kind = TokenKind::Percent;
         bump();
       } break;
       case '\'': {
         bump();
         kind = lifetime_or_char(&sym, start);
-        if (kind == LitChar) {
+        if (kind == TokenKind::LitChar) {
           auto lit = Literal { .sym = sym, .suffix = { 0 } };
           return Token(kind.value(), Span((u32)start, (u32)m_index), lit);
-        } else if (kind == Lifetime) {
+        } else if (kind == TokenKind::Lifetime) {
           return Token(kind.value(), Span((u32)start, (u32)m_index), sym);
         }
       } break;
@@ -178,16 +178,16 @@ auto Lexer::next() -> Token {
           eat_literal_suffix();
         }
         auto lit = Literal { .sym = sym, .suffix = { 0 } };
-        return Token(LitStr, Span((u32)start, (u32)m_index), lit);
+        return Token(TokenKind::LitStr, Span((u32)start, (u32)m_index), lit);
       } break;
       case '\0': {
-        kind = Eof;
+        kind = TokenKind::Eof;
       } break;
       default: {
         if (isalpha(m_c) || m_c == '_') {
           eat_identifier();
           sym = symbol(start);
-          return Token(Ident, Span((u32)start, (u32)m_index), sym);
+          return Token(TokenKind::Ident, Span((u32)start, (u32)m_index), sym);
         } else if (isdigit(m_c)) {
           Base base = Decimal;
           kind = number(&base);
@@ -227,7 +227,7 @@ auto Lexer::number(Base* base) -> TokenKind {
       case 'E':
         break;
       default:
-        return LitInteger;
+        return TokenKind::LitInteger;
     }
   } else {
     eat_decimal_digits();
@@ -239,7 +239,7 @@ auto Lexer::number(Base* base) -> TokenKind {
   } else if (m_c == 'e' || m_c == 'E') {
     TODO();
   } else {
-    return LitInteger;
+    return TokenKind::LitInteger;
   }
   UNREACHABLE();
 }
@@ -250,10 +250,10 @@ auto Lexer::line_comment() -> Option<TokenKind> {
 
   if (m_c == '!') {
     // `//!` inner doc comment
-    kind = DocCommentInner;
+    kind = TokenKind::DocCommentInner;
   } else if (m_c == '/' && first() != '/') {
     // `///` is an outer doc comment, `////` (more than 3 slashes) is not
-    kind = DocCommentOuter;
+    kind = TokenKind::DocCommentOuter;
   }
 
   while (m_c != '\n') bump();
@@ -266,11 +266,11 @@ auto Lexer::block_comment() -> Option<TokenKind> {
 
   if (m_c == '!') {
     // `/*!` inner block doc comment
-    kind = DocCommentInner;
+    kind = TokenKind::DocCommentInner;
   } else if (m_c == '*' && first() != '*' && first() != '/') {
     // `/**` is an outer block doc comment
     // `/***` and `/**/` are not
-    kind = DocCommentOuter;
+    kind = TokenKind::DocCommentOuter;
   }
 
   usize depth = 1;
@@ -313,7 +313,7 @@ auto Lexer::lifetime_or_char(Symbol* sym, usize start) -> TokenKind {
     if (terminated) {
       *sym = symbol(start);
       eat_literal_suffix();
-      return LitChar;
+      return TokenKind::LitChar;
     }
   }
 
@@ -326,11 +326,11 @@ auto Lexer::lifetime_or_char(Symbol* sym, usize start) -> TokenKind {
   if (m_c == '\'') {
     bump();
     *sym = symbol(start);
-    return LitChar;
+    return TokenKind::LitChar;
   }
 
   *sym = symbol(start);
-  return Lifetime;
+  return TokenKind::Lifetime;
 }
 
 auto Lexer::single_quoted_string() -> bool {

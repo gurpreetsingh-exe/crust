@@ -3,12 +3,16 @@
 
 namespace crust {
 
-struct Span {
+struct [[nodiscard]] Span {
   u32 lo;
   u32 hi;
 
-  Span() {}
-  [[nodiscard]] Span(u32 s, u32 e) : lo(s), hi(e) {}
+  Span() : lo(0), hi(0) {}
+  Span(u32 s, u32 e) : lo(s), hi(e) {}
+  auto operator==(Span sp) const -> bool { return sp.hi == hi and sp.lo == lo; }
+
+  auto to(Span end) -> Span;
+  auto is_dummy() -> bool;
 };
 
 } // namespace crust

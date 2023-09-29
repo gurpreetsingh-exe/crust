@@ -4,102 +4,109 @@ namespace crust {
 
 auto format_as(TokenKind kind) {
   switch (kind) {
-    case Eq:
+    case TokenKind::Eq:
       return "=";
-    case Lt:
+    case TokenKind::Lt:
       return "<";
-    case Le:
+    case TokenKind::Le:
       return "<=";
-    case EqEq:
+    case TokenKind::EqEq:
       return "==";
-    case Ne:
+    case TokenKind::Ne:
       return "!=";
-    case Ge:
+    case TokenKind::Ge:
       return ">=";
-    case Gt:
+    case TokenKind::Gt:
       return ">";
-    case AndAnd:
+    case TokenKind::AndAnd:
       return "&&";
-    case OrOr:
+    case TokenKind::OrOr:
       return "||";
-    case Not:
+    case TokenKind::Not:
       return "!";
-    case Tilde:
+    case TokenKind::Tilde:
       return "~";
-    case At:
+    case TokenKind::At:
       return "@";
-    case Dot:
+    case TokenKind::Dot:
       return ".";
-    case DotDot:
+    case TokenKind::DotDot:
       return "..";
-    case DotDotDot:
+    case TokenKind::DotDotDot:
       return "...";
-    case DotDotEq:
+    case TokenKind::DotDotEq:
       return "..=";
-    case Comma:
+    case TokenKind::Comma:
       return ",";
-    case Semi:
+    case TokenKind::Semi:
       return ";";
-    case Colon:
+    case TokenKind::Colon:
       return ":";
-    case ModSep:
+    case TokenKind::ModSep:
       return "::";
-    case RArrow:
+    case TokenKind::RArrow:
       return "->";
-    case LArrow:
+    case TokenKind::LArrow:
       return "<-";
-    case FatArrow:
+    case TokenKind::FatArrow:
       return "=>";
-    case Pound:
+    case TokenKind::Pound:
       return "#";
-    case Dollar:
+    case TokenKind::Dollar:
       return "$";
-    case Question:
+    case TokenKind::Question:
       return "?";
-    case SingleQuote:
+    case TokenKind::SingleQuote:
       return "'";
-    case Ident:
+    case TokenKind::Ident:
       return "Ident";
-    case Lifetime:
+    case TokenKind::Lifetime:
       return "'a";
-    case DocCommentInner:
+    case TokenKind::DocCommentInner:
       return "//!";
-    case DocCommentOuter:
+    case TokenKind::DocCommentOuter:
       return "///";
-    case Eof:
+    case TokenKind::Eof:
       return "<eof>";
 #define X(bin_op)                                                              \
-  case bin_op:                                                                 \
+  case TokenKind::bin_op:                                                      \
     return #bin_op;
       BINARY_OPS()
 #undef X
 
 #define X(bin_op)                                                              \
-  case bin_op##Eq:                                                             \
+  case TokenKind::bin_op##Eq:                                                  \
     return CAT(bin_op, Eq);
       BINARY_OPS()
 #undef X
 
 #define X(delim)                                                               \
-  case Open##delim:                                                            \
+  case TokenKind::Open##delim:                                                 \
     return CAT(Open, delim);
       DELIMITERS()
 #undef X
 
 #define X(delim)                                                               \
-  case Close##delim:                                                           \
+  case TokenKind::Close##delim:                                                \
     return CAT(Close, delim);
       DELIMITERS()
 #undef X
 
 #define X(lit)                                                                 \
-  case Lit##lit:                                                               \
+  case TokenKind::Lit##lit:                                                    \
     return #lit;
       LITERALS()
 #undef X
   }
 
   UNREACHABLE();
+}
+
+auto Token::ident() -> Option<std::tuple<Ident, bool>> {
+  if (kind == TokenKind::Ident) {
+    return std::make_tuple(Ident(std::get<Symbol>(extra), span), true);
+  }
+  return {};
 }
 
 } // namespace crust

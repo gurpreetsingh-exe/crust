@@ -1,6 +1,8 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
+#include <span/span.hh>
+
 namespace crust {
 
 /// Special reserved identifiers used internally for elided lifetimes,
@@ -79,9 +81,43 @@ struct Symbol {
   Symbol() {};
   Symbol(u32 index) : inner(index) {}
   auto operator==(Symbol other) -> bool { return inner == other.inner; }
+  auto operator<=(Symbol other) -> bool { return inner <= other.inner; }
+  auto operator>=(Symbol other) -> bool { return inner >= other.inner; }
 
   static auto intern(std::string_view string) -> Symbol;
   auto get() -> std::string_view;
+
+  auto is_special() -> bool;
+  auto is_used_keyword_always() -> bool;
+  auto is_used_keyword_conditional() -> bool;
+  auto is_unused_keyword_always() -> bool;
+  auto is_unused_keyword_conditional() -> bool;
+  auto is_reserved() -> bool;
+  auto is_path_segment_keyword() -> bool;
+  auto is_bool_lit() -> bool;
+  auto can_be_raw() -> bool;
+};
+
+struct Ident {
+  Symbol name;
+  Span span;
+
+  Ident(Symbol n, Span sp) : name(n), span(sp) {}
+
+  auto is_special() -> bool { return name.is_special(); }
+
+  auto is_used_keyword() -> bool {
+    return name.is_used_keyword_always() or name.is_used_keyword_conditional();
+  }
+
+  auto is_unused_keyword() -> bool {
+    return name.is_unused_keyword_always() or
+           name.is_unused_keyword_conditional();
+  }
+
+  auto is_path_segment_keyword() -> bool {
+    return name.is_path_segment_keyword();
+  }
 };
 
 struct Interner {

@@ -27,37 +27,33 @@ bool is_whitespace(char c) {
   switch (c) {
       // Usual ASCII suspects
     case '\t':
-      [[fallthrough]];
     case '\n':
-      [[fallthrough]];
     case '\x0b': // vertical tab
-      [[fallthrough]];
     case '\x0c': // form feed
-      [[fallthrough]];
     case '\r':
-      [[fallthrough]];
     case ' ':
-      [[fallthrough]];
 
       // NEXT LINE from latin1
-    case '\x85':
-      /**
-      [[fallthrough]];
+      // case '\x85':
+      //   // Bidi markers
+      // case L'\u200E': // LEFT-TO-RIGHT MARK
+      // case L'\u200F': // RIGHT-TO-LEFT MARK
+      //
+      //   // Dedicated whitespace characters from Unicode
+      // case L'\u2028': // LINE SEPARATOR
+      // case L'\u2029': // PARAGRAPH SEPARATOR
 
-        // Bidi markers
-      case L'\u200E':
-        [[fallthrough]]; // LEFT-TO-RIGHT MARK
-      case L'\u200F':
-        [[fallthrough]]; // RIGHT-TO-LEFT MARK
-
-        // Dedicated whitespace characters from Unicode
-      case L'\u2028':
-        [[fallthrough]]; // LINE SEPARATOR
-      case L'\u2029':    // PARAGRAPH SEPARATOR
-     **/
       return true;
   }
   return false;
+}
+
+auto get_lines(const std::string& str) -> std::vector<std::string> {
+  auto lines = std::vector<std::string>();
+  auto f = std::istringstream(str);
+  auto s = std::string();
+  while (std::getline(f, s, '\n')) { lines.push_back(s); }
+  return lines;
 }
 
 } // namespace crust

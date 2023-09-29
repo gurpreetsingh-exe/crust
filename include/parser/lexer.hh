@@ -16,6 +16,9 @@ public:
 
 public:
   [[nodiscard]] auto next() -> Token;
+  [[nodiscard]] auto preceded_by_whitespace() -> bool {
+    return m_preceded_by_whitespace;
+  }
 
 private:
   auto bump() -> void;

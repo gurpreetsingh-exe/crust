@@ -38,7 +38,7 @@ namespace crust {
   X(CStrRaw)                                                                   \
   X(Err)
 
-enum TokenKind {
+enum class TokenKind {
   /// Expression-operator symbols.
   Eq,
   Lt,
@@ -139,6 +139,33 @@ struct Token {
   Token() {}
   Token(TokenKind _kind, Span _span, TokenExtra _extra)
       : kind(_kind), span(_span), extra(_extra) {}
+
+  auto ident() -> Option<std::tuple<Ident, bool>>;
+
+  template <typename Callable>
+  auto is_raw_non_ident_where(Callable&& cb) -> bool {
+    auto id = ident();
+    if (not id.has_value()) {
+      return false;
+    }
+    auto [idnt, _] = id.value();
+    return cb(idnt);
+  }
+
+  auto is_special_ident() -> bool {
+    return is_raw_non_ident_where(
+        [](Ident ident) { return ident.is_special(); });
+  }
+
+  auto is_used_keyword() -> bool {
+    return is_raw_non_ident_where(
+        [](Ident ident) { return ident.is_used_keyword(); });
+  }
+
+  auto is_unused_keyword() -> bool {
+    return is_raw_non_ident_where(
+        [](Ident ident) { return ident.is_unused_keyword(); });
+  }
 };
 
 } // namespace crust
