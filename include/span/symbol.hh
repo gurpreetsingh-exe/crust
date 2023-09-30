@@ -81,6 +81,7 @@ struct Symbol {
   Symbol() {};
   Symbol(u32 index) : inner(index) {}
   auto operator==(Symbol other) -> bool { return inner == other.inner; }
+  auto operator==(Symbol other) const -> bool { return inner == other.inner; }
   auto operator<=(Symbol other) -> bool { return inner <= other.inner; }
   auto operator>=(Symbol other) -> bool { return inner >= other.inner; }
 
@@ -104,6 +105,8 @@ struct Ident {
 
   Ident(Symbol n, Span sp) : name(n), span(sp) {}
 
+  static auto from_str(std::string_view s) -> Ident;
+
   auto is_special() -> bool { return name.is_special(); }
 
   auto is_used_keyword() -> bool {
@@ -125,6 +128,7 @@ struct Interner {
   std::unordered_map<std::string_view, Symbol> names;
 
   auto fresh() -> void;
+  auto clear() -> void;
   auto intern(std::string_view string) -> Symbol;
 };
 

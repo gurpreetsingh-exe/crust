@@ -59,6 +59,10 @@ auto Symbol::can_be_raw() -> bool {
          not is_path_segment_keyword();
 }
 
+auto Ident::from_str(std::string_view s) -> Ident {
+  return Ident(interner.intern(s), Span());
+}
+
 auto Interner::fresh() -> void {
 #define X(unused, val)                                                         \
   do {                                                                         \
@@ -69,6 +73,11 @@ auto Interner::fresh() -> void {
   } while (0);
   KEYWORDS()
 #undef X
+}
+
+auto Interner::clear() -> void {
+  interner.strings.clear();
+  interner.names.clear();
 }
 
 auto Interner::intern(std::string_view string) -> Symbol {

@@ -199,9 +199,9 @@ auto emit_to_destination(Level level,
     -> void {
   for (auto line : buffer) {
     for (auto part : line) {
-      fmt::print(set_color(level, part.style), "{}", part.text);
+      fmt::print(stderr, set_color(level, part.style), "{}", part.text);
     }
-    fmt::println("");
+    fmt::print(stderr, "\n");
   }
 }
 

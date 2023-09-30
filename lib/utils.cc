@@ -1,10 +1,16 @@
 #include <execinfo.h>
 #include <utils.hh>
 
+#include <errors/diagnostic.hh>
+#include <errors/handler.hh>
+
 namespace crust {
 
 void __crust_panic(const char* file, int line, const char* format, ...) {
-  fprintf(stderr, "panic at %s:%d", file, line);
+  auto handler = Handler(std::nullopt);
+  auto message = fmt::format("panic at {}:{}", file, line);
+  auto diag = handler.struct_span_err(Span(), Message(message, Style::NoStyle));
+  handler.emit_diagnostic(diag);
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);

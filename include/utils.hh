@@ -45,8 +45,6 @@ using Rc = std::shared_ptr<T>;
 template <typename T>
 using Option = std::optional<T>;
 
-#define None std::nullopt
-
 using location = std::experimental::source_location;
 
 template <typename T, typename E>
@@ -136,7 +134,7 @@ auto contains(const std::vector<T>& v, const T& item) -> bool {
   (fprintf(stderr, "\033[1;31merror\033[0m: " __VA_ARGS__), exit(1))
 
 #define PANIC(...)                                                             \
-  (::crust::__crust_panic(__FILE__, __LINE__, "\n    " __VA_ARGS__))
+  (::crust::__crust_panic(__FILE__, __LINE__, "    " __VA_ARGS__))
 
 #define TODO(...) PANIC(__VA_ARGS__)
 

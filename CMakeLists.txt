@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 set(ENABLE_TESTS OFF CACHE BOOL "Enable tests")
 
+set(driver "${CMAKE_SOURCE_DIR}/lib/driver/crust.cc")
 set(test_driver "${CMAKE_SOURCE_DIR}/lib/driver/test_driver.cc")
 
 file(GLOB_RECURSE sources "${CMAKE_SOURCE_DIR}/lib/*.cc")
@@ -74,15 +75,16 @@ if(ENABLE_TESTS)
     message("-- tests enabled")
     set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
     file(GLOB_RECURSE test_sources "${CMAKE_SOURCE_DIR}/lib/*.cc")
-    list(FILTER test_sources INCLUDE REGEX "/tests/")
+    list(REMOVE_ITEM test_sources ${driver})
 
     add_subdirectory(third_party/googletest)
     enable_testing()
     include(GoogleTest)
 
-    add_executable(run_tests ${test_driver})
+    add_executable(run_tests ${test_driver} ${test_sources})
+    target_precompile_headers(run_tests PRIVATE "${CMAKE_SOURCE_DIR}/include/utils.hh")
     target_include_directories(run_tests PUBLIC "${CMAKE_SOURCE_DIR}/include")
-    target_link_libraries(run_tests GTest::gtest)
+    target_link_libraries(run_tests fmt GTest::gtest)
 
     gtest_discover_tests(run_tests)
 endif()

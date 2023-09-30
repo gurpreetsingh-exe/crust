@@ -27,7 +27,7 @@ auto Parser::parse_path_segments(std::vector<PathSegment>& segments)
 
 auto Parser::parse_path_segment() -> PResult<PathSegment> {
   auto ident = TRY(parse_path_segment_ident());
-  return PathSegment(ident, None);
+  return PathSegment(ident, std::nullopt);
 }
 
 auto Parser::parse_path_segment_ident() -> PResult<Ident> {

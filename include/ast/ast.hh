@@ -18,7 +18,7 @@ struct PathSegment {
   PathSegment(Ident i, Option<GenericArgs> a) : ident(i), args(a) {}
 
   static auto from_root(Span span) -> PathSegment {
-    return PathSegment(Ident(kw::PathRoot, span), None);
+    return PathSegment(Ident(kw::PathRoot, span), std::nullopt);
   }
 };
 
